@@ -53,7 +53,7 @@ class UserController extends Controller
         })->get();
 
         if ($users->count() === 0){
-            return response()->json(['message' => "No match found!"], 201);
+            return response()->json(['message' => "No match found!"], 200);
         }
 
         return UserResource::collection($users);
