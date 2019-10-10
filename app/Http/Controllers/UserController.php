@@ -66,7 +66,23 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = $this->userService->validateUserRequests($request);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::findOrFail($id);
+        $user->id_no = $request->id_no;
+        $user->firstname = $request->firstname;
+        $user->lastname = $request->lastname;
+        $user->gender = $request->gender;
+        $user->save();
+
+        return response()->json([
+            'message' => "Successfully updated user record: $id!"
+        ], 201);
+
     }
 
     /**
