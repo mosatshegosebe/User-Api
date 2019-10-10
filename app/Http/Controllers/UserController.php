@@ -17,11 +17,43 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // if nothing is appended on the index route then it will retrieve all active records of users
+        $validator = Validator::make($request->all(), [
+            'id_no' => 'nullable|int', // if provided on the url it will search by id_no e.g. /users?id_no=12345
+            'firstname' => 'nullable|string',  // if provided on the url it will search by firstname e.g. /users?firstname=Api
+            'lastname' => 'nullable|string', //if provided on the url it will search by lastname e.g. /users?lastname=Api
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $id_no = $request->id_no;
+        $firstname = $request->firstname;
+        $lastname = $request->lastname;
+
+
+        $users = User::when($id_no, function ($q, $id_no) {
+            $q->where('id_no', $id_no);
+        })->when($firstname, function ($q, $firstname){
+            $q->where('firstname', 'LIKE', "%$firstname%");
+        })->when($lastname, function ($q, $lastname){
+            $q->where('lastname', 'LIKE', "%$lastname%");
+        }, function ($query) {
+            return $query->orderBy('id');
+        })->get();
+
+        if ($users->count() === 0){
+            return response()->json(['message' => "No match found!"], 201);
+        }
+
+        return UserResource::collection($users);
     }
 
     /**
