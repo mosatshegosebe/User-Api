@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    private $userService;
+
+    public function __construct(UserService $service)
+    {
+        $this->userService = $service;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -25,12 +32,11 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'id_no' => 'required|int|unique:users', //validate id_no to be unique
-            'firstname' => 'required|string',
-            'lastname' => 'required|string',
-            'gender' => 'required|string|max:1'
-        ]);
+        $validator = $this->userService->validateUserRequests($request);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
         $user = new User([
             'id_no' => $request->id_no,
