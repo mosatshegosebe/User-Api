@@ -17,5 +17,5 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'prefix' => 'v1'
 ], function () {
-    Route::apiResource('users', 'UserController')->only(['destroy','update', 'store']);
+    Route::apiResource('users', 'UserController')->only(['index', 'destroy','update', 'store']);
 });
