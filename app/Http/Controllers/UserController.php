@@ -77,6 +77,12 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::findorFail($id);
+
+        $user->delete();
+
+        return response()->json([
+            'message' => "Successfully deleted user record: $id!"
+        ], 201);
     }
 }
